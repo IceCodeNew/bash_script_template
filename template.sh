@@ -39,6 +39,13 @@ mv() {
 mkdir() {
   $(type -P mkdir) -p "$@"
 }
+# Personally I would recommend using `install` rather than `cp`
+## Refer: https://unix.stackexchange.com/a/441251 , https://superuser.com/a/229980
+mkdir_and_install_644() {
+  # $(type -P install) --preserve-context -pvDm 644 "$@"
+  $(type -P install) -pvDm 644 "$@"
+}
+
 curl() {
   $(type -P curl) -LRq --retry 5 --retry-delay 10 --retry-max-time 60 "$@"
 }
