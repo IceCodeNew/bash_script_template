@@ -49,6 +49,36 @@ mkdir_and_install_644() {
 curl() {
   $(type -P curl) -LRq --retry 5 --retry-delay 10 --retry-max-time 60 "$@"
 }
+# The following version will not work on non-interactive environment
+: << 'CURL_2_DEST'
+```shell
+curl_to_dest() {
+  (
+    tmp_dir=$(mktemp -d)
+    cd "$tmp_dir" || exit 1
+    read -rp "(Download URL is): " -a download_url
+    if $(type -P curl) -LROJq --retry 5 --retry-delay 10 --retry-max-time 60 "${download_url[@]}"; then
+      read -rp "(The dest for file copying): " dest_path
+      find . -maxdepth 1 -type f -print0 | xargs -0 -i -r -s 2000 "$(type -P install)" -pvDm 644 "{}" "$dest_path"
+    fi
+    /bin/rm -rf "$tmp_dir"
+  )
+}
+```
+CURL_2_DEST
+curl_to_dest() {
+  if [[ $# -eq 2 ]]; then
+    (
+      tmp_dir=$(mktemp -d)
+      cd "$tmp_dir" || exit 1
+      if $(type -P curl) -LROJq --retry 5 --retry-delay 10 --retry-max-time 60 "$1"; then
+        find . -maxdepth 1 -type f -print0 | xargs -0 -i -r -s 2000 "$(type -P install)" -pvDm 644 "{}" "$2"
+      fi
+      /bin/rm -rf "$tmp_dir"
+    )
+  fi
+}
+
 git_clone() {
   if [[ -z "$GIT_PROXY" ]]; then
     $(type -P git) clone -j "$(nproc)" --no-tags --shallow-submodules --recurse-submodules --depth 1 --single-branch "$@"
