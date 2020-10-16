@@ -20,6 +20,10 @@ alias crontab='crontab -i'
 ```
 ALIASES
 
+# Shell functions are only known to the shell. External commands like `find`, `xargs`, `su` and `sudo` do not recognize shell functions.
+# Instead, the function contents can be executed in a shell, either through sh -c or by creating a separate shell script as an executable file.
+## Refer: https://github.com/koalaman/shellcheck/wiki/SC2033
+
 cd() {
   cd "$@" || exit 1
 }
